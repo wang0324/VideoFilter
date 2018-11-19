@@ -28,6 +28,13 @@ public class PixelLib {
         return out;
     }
 
+    public static void fill1dArray(short[] vals, int[] arr) {
+        for (int i = 0; i < vals.length; i++) {
+            arr[i] = shortToRGBGrey(vals[i]);
+        }
+    }
+
+
     public static ColorComponents1d getColorComponents1d(int[][] rgbPixels) {
         int h = rgbPixels.length;
         int w = rgbPixels[0].length;
