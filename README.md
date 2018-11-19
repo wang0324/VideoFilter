@@ -1,7 +1,7 @@
 # Basic Info
 Uses your computer's webcam and the user selects which filter to use on the video made.
 
-#How to Use
+# How to Use
 1. Download zip or clone.
 2. Set up JDK 1.8 and Language Level 8
 3. Set up complier output (I made a new folder called bin in the project)
