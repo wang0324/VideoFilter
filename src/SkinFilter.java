@@ -18,11 +18,11 @@ public class SkinFilter implements PixelFilter {
     private double THRESHOLD = 100; //Originally 80
     private static final int THRESHOLD2 = 254;
 
-    private ArrayList <Cluster> clusters;
+    private ArrayList<Cluster> clusters;
     private int numClusters;
 
     public SkinFilter() {
-        numClusters = Integer.parseInt( JOptionPane.showInputDialog("enter a number"));
+        numClusters = Integer.parseInt(JOptionPane.showInputDialog("enter a number"));
         clusters = new ArrayList<Cluster>();
     }
 
@@ -46,6 +46,27 @@ public class SkinFilter implements PixelFilter {
 
         ArrayList<Point> allPoints = getAllPoints(out2);
 
+        do {
+            //Assign points to clusters
+            for (Point p : allPoints) {
+                int index = -10; //If does not run, should give out of bounds exception -100
+                double smallestDist = Integer.MAX_VALUE;
+                for (int i = 0; i < clusters.size(); i++) {
+                    Cluster c = clusters.get(i);
+                    double dist = p.distance(c.getCenter());
+                    if (dist < smallestDist) {
+                        smallestDist = dist;
+                        index = i;
+                    }
+                }
+                Cluster updatedCluster = clusters.get(index);
+                updatedCluster.addPoint(p);
+
+                for (Cluster c : clusters) {
+                    c.reCalculateCenter();
+                }
+            }
+        } while (false); //Figure out what condition to put
 
         // as last step, loop over all points in all your clusters
         //   change color values in img depending on what cluster each
@@ -57,7 +78,7 @@ public class SkinFilter implements PixelFilter {
     }
 
     private ArrayList<Point> getAllPoints(short[][] out2) {
-        ArrayList <Point> output = new ArrayList<Point>();
+        ArrayList<Point> output = new ArrayList<Point>();
         return output;
     }
 
@@ -65,15 +86,15 @@ public class SkinFilter implements PixelFilter {
         clusters.clear();
         for (int i = 0; i < numClusters; i++) {
             Point randomCenter = getRandomPoint();
-            ArrayList <Point> p = new ArrayList<Point>();
+            ArrayList<Point> p = new ArrayList<Point>();
             Cluster tmp = new Cluster(randomCenter, p);
             clusters.add(tmp);
         }
     }
 
     private Point getRandomPoint() {
-        int r = (int)(Math.random()*out.length);
-        int c = (int)(Math.random()*out[0].length);
+        int r = (int) (Math.random() * out.length);
+        int c = (int) (Math.random() * out[0].length);
         Point randPoint = new Point(r, c);
         return randPoint;
     }
