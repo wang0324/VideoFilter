@@ -31,7 +31,7 @@ public class FilterView extends PApplet {
         // Start capturing the images from the camera
         video.start();
 
-        frameRate(60);
+        frameRate(30);
     }
 
     public void draw() {
