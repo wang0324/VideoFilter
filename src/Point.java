@@ -31,6 +31,10 @@ public class Point {
         return false;
     }
 
+    public double distance(Point a) {
+        return Math.sqrt(Math.pow(this.row-a.getRow(), 2) + Math.pow(this.col-a.getCol(), 2));
+    }
+
     public String toString() {
         String s = "";
         return s;
