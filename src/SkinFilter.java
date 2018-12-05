@@ -23,7 +23,7 @@ public class SkinFilter implements PixelFilter {
 
     public SkinFilter() {
         numClusters = Integer.parseInt(JOptionPane.showInputDialog("enter a number"));
-        clusters = new ArrayList<Cluster>();
+        clusters = new ArrayList<>();
     }
 
     @Override
@@ -46,36 +46,65 @@ public class SkinFilter implements PixelFilter {
 
         ArrayList<Point> allPoints = getAllPoints(out2);
 
-        do {
+        for (int l = 0; l < 10; l++) {
             //Assign points to clusters
-            for (Point p : allPoints) {
-                int index = -10; //If does not run, should give out of bounds exception -100
-                double smallestDist = Integer.MAX_VALUE;
-                for (int i = 0; i < clusters.size(); i++) {
-                    Cluster c = clusters.get(i);
-                    double dist = p.distance(c.getCenter());
-                    if (dist < smallestDist) {
-                        smallestDist = dist;
-                        index = i;
-                    }
-                }
-                Cluster updatedCluster = clusters.get(index);
-                updatedCluster.addPoint(p);
+            assignToCluster(allPoints);
 
-                for (Cluster c : clusters) {
-                    c.reCalculateCenter();
-                }
-            }
-        } while (false); //Figure out what condition to put
+        }
+
+        //while (areCentersDifferent()); //Figure out what condition to put
 
         // as last step, loop over all points in all your clusters
         //   change color values in img depending on what cluster each
         //   point is part of.
         // -----------------------------------------
 
-        PixelLib.fill1dArray(out2, pixels);
+        updateColor(img);
+
+        pixels = PixelLib.combineColorComponents(img);
         return pixels;
     }
+
+    private void assignToCluster(ArrayList<Point> allPoints) {
+        for (Point p : allPoints) {
+            int index = -1; //If does not run, should give out of bounds exception -1
+            double smallestDist = Integer.MAX_VALUE;
+            for (int i = 0; i < clusters.size(); i++) {
+                Cluster c = clusters.get(i);
+                double dist = p.distance(c.getCenter());
+                if (dist < smallestDist) {
+                    smallestDist = dist;
+                    index = i;
+                }
+            }
+            Cluster updatedCluster = clusters.get(index);
+            updatedCluster.addPoint(p);
+
+            for (Cluster c : clusters) {
+                c.reCalculateCenter();
+            }
+        }
+    }
+
+    private void updateColor(PixelLib.ColorComponents2d img) {
+        for (Cluster c:clusters) {
+            ArrayList <Point> points = c.getPoints();
+            for (Point p:points) {
+
+                img.red[p.getRow()][p.getCol()] = red;
+                img.blue[p.getRow()][p.getCol()] = blue;
+                img.green[p.getRow()][p.getCol()] = green;
+            }
+        }
+    }
+
+    private boolean areCentersDifferent() {
+        for (Cluster c: clusters) {
+            if (c.didCenterChange()) return false;
+        }
+        return true;
+    }
+
 
     private ArrayList<Point> getAllPoints(short[][] out2) {
         ArrayList<Point> output = new ArrayList<Point>();

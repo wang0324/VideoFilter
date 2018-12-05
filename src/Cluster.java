@@ -3,10 +3,12 @@ import java.util.ArrayList;
 public class Cluster {
     private Point center;
     private ArrayList <Point> points;
+    private Point previousCenter;
 
     public Cluster(Point center, ArrayList <Point> points) {
         this.center = center;
         this.points = points;
+        this.previousCenter = new Point(0,0);
     }
 
     public void addPoint(Point p) {
@@ -25,7 +27,17 @@ public class Cluster {
         return this.center;
     }
 
+    public boolean didCenterChange() {
+        if (previousCenter.equals(this.center)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     public void reCalculateCenter() {
+        this.previousCenter = center;
         int rowTotal = 0, colTotal = 0;
         for (Point p : points) {
             rowTotal += p.getRow();
