@@ -37,6 +37,9 @@ public class Cluster {
     }
 
     public void reCalculateCenter() {
+        if (points.size() <= 0) {
+            return;
+        }
         this.previousCenter = center;
         int rowTotal = 0, colTotal = 0;
         for (Point p : points) {

@@ -42,41 +42,50 @@ public class SkinFilter implements PixelFilter {
         performSecondThreshold(out2);
 
         // TODO:  Start your k-means code here
+        System.out.println("Initializing Clusters");
         initializeClusters(); //re-set existing clusters
 
+        System.out.println("Get all points");
         ArrayList<Point> allPoints = getAllPoints(out2);
 
-        for (int l = 0; l < 10; l++) {
+        for (int l = 0; l < 2; l++) {
             //Assign points to clusters
+            System.out.println("Assigning to cluster");
             assignToCluster(allPoints);
 
         }
 
-        //while (areCentersDifferent()); //Figure out what condition to put
+
+        displayClusters();
 
         // as last step, loop over all points in all your clusters
         //   change color values in img depending on what cluster each
         //   point is part of.
         // -----------------------------------------
 
+        System.out.println("Updating Colors");
         updateColor(img);
 
         pixels = PixelLib.combineColorComponents(img);
         return pixels;
     }
 
+    private void displayClusters() {
+        System.out.println("Started displaying clusters");
+        for (Cluster c: clusters){
+            ArrayList <Point> arr = c.getPoints();
+            for (Point p: arr) {
+                System.out.println("Cluster " + p.getRow() + " " + p.getCol());
+            }
+        }
+    }
+
     private void assignToCluster(ArrayList<Point> allPoints) {
         for (Point p : allPoints) {
             int index = -1; //If does not run, should give out of bounds exception -1
             double smallestDist = Integer.MAX_VALUE;
-            for (int i = 0; i < clusters.size(); i++) {
-                Cluster c = clusters.get(i);
-                double dist = p.distance(c.getCenter());
-                if (dist < smallestDist) {
-                    smallestDist = dist;
-                    index = i;
-                }
-            }
+            index = findClosestCluster(p);
+
             Cluster updatedCluster = clusters.get(index);
             updatedCluster.addPoint(p);
 
@@ -84,6 +93,20 @@ public class SkinFilter implements PixelFilter {
                 c.reCalculateCenter();
             }
         }
+    }
+
+    private int findClosestCluster(Point p) {
+        int index = -1;
+        double smallestDist = Double.MAX_VALUE;
+        for (int i = 0; i < clusters.size(); i++) {
+            Cluster c = clusters.get(i);
+            double dist = p.distance(c.getCenter());
+            if (dist < smallestDist) {
+                smallestDist = dist;
+                index = i;
+            }
+        }
+        return index;
     }
 
     private void updateColor(PixelLib.ColorComponents2d img) {
@@ -106,8 +129,15 @@ public class SkinFilter implements PixelFilter {
     }
 
 
-    private ArrayList<Point> getAllPoints(short[][] out2) {
+    private ArrayList<Point>  getAllPoints(short[][] out2) {
         ArrayList<Point> output = new ArrayList<Point>();
+        for (int i = 0; i < out2.length; i++) {
+            for (int j = 0; j < out2[0].length; j++) {
+                if (out2[i][j] == 255) {
+                    output.add(new Point(i, j));
+                }
+            }
+        }
         return output;
     }
 

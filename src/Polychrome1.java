@@ -3,10 +3,11 @@ import javax.swing.*;
 public class Polychrome1 implements PixelFilter {
     private int colors;
     private short spectrum;
-    public Polychrome1(){
+
+    public Polychrome1() {
         String input = JOptionPane.showInputDialog("Choose the number of colors");
         colors = Integer.parseInt(input);
-        spectrum = (short)(255/(colors-1));
+        spectrum = (short) (255 / (colors));
     }
 
     @Override
@@ -15,9 +16,9 @@ public class Polychrome1 implements PixelFilter {
 
         for (int i = 0; i < bwpixels.length; i++) {
 
-            for(int j =0; j<=colors; j++){
-                if (bwpixels[i] <= spectrum*j){
-                    bwpixels[i]=(short)(spectrum*j);
+            for (int j = 0; j <= colors; j++) {
+                if (bwpixels[i] <= spectrum * j) {
+                    bwpixels[i] = (short) (spectrum * j);
                     break;
                 }
             }
