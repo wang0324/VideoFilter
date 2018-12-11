@@ -11,18 +11,15 @@ public class SkinFilter implements PixelFilter {
     private int kernelWeight;
 
     // Originally 186 108 73
-    //Now 120 92 80
-    private short red = 186;
-    private short green = 108;
-    private short blue = 73;
+    private short red = 120;
+    private short green = 92;
+    private short blue = 80;
 
     private double THRESHOLD = 100; //Originally 80
     private static final int THRESHOLD2 = 254;
 
     private ArrayList<Cluster> clusters;
     private int numClusters;
-
-    private boolean initialized = false;
 
     public SkinFilter() {
         numClusters = Integer.parseInt(JOptionPane.showInputDialog("enter a number"));
@@ -45,40 +42,49 @@ public class SkinFilter implements PixelFilter {
         performSecondThreshold(out2);
 
         // TODO:  Start your k-means code here
-        initializeClusters(width, height); //re-set existing clusters
+        System.out.println("Initializing Clusters");
+        initializeClusters(); //re-set existing clusters
 
+        System.out.println("Get all points");
         ArrayList<Point> allPoints = getAllPoints(out2);
 
-        for (int l = 0; l < 10; l++) {
+        for (int l = 0; l < 2; l++) {
             //Assign points to clusters
+            System.out.println("Assigning to cluster");
             assignToCluster(allPoints);
 
         }
 
-        int num = 0;
-        for (Cluster c:clusters) {
-            if (num == 0) {
-                c.setColor(255,0,0);
-            }
-            else if (num == 1) {
-                c.setColor(0,255,0);
-            }
 
-                c.setColor(255,255,255);
+        displayClusters();
 
-            num++;
-        }
-        img = updateColor(img);
+        // as last step, loop over all points in all your clusters
+        //   change color values in img depending on what cluster each
+        //   point is part of.
+        // -----------------------------------------
+
+        System.out.println("Updating Colors");
+        updateColor(img);
 
         pixels = PixelLib.combineColorComponents(img);
-        //PixelLib.fill1dArray(out2, pixels);
         return pixels;
+    }
+
+    private void displayClusters() {
+        System.out.println("Started displaying clusters");
+        for (Cluster c: clusters){
+            ArrayList <Point> arr = c.getPoints();
+            for (Point p: arr) {
+                System.out.println("Cluster " + p.getRow() + " " + p.getCol());
+            }
+        }
     }
 
     private void assignToCluster(ArrayList<Point> allPoints) {
         for (Point p : allPoints) {
-
-            int index = findClosestCenter(p); //If does not run, should give out of bounds exception -1
+            int index = -1; //If does not run, should give out of bounds exception -1
+            double smallestDist = Integer.MAX_VALUE;
+            index = findClosestCluster(p);
 
             Cluster updatedCluster = clusters.get(index);
             updatedCluster.addPoint(p);
@@ -89,64 +95,44 @@ public class SkinFilter implements PixelFilter {
         }
     }
 
-    private int findClosestCenter(Point p) {
+    private int findClosestCluster(Point p) {
         int index = -1;
         double smallestDist = Double.MAX_VALUE;
         for (int i = 0; i < clusters.size(); i++) {
             Cluster c = clusters.get(i);
             double dist = p.distance(c.getCenter());
-
             if (dist < smallestDist) {
                 smallestDist = dist;
                 index = i;
             }
         }
-
         return index;
     }
 
-    private PixelLib.ColorComponents2d updateColor(PixelLib.ColorComponents2d img) {
-        for (int i = 0; i < img.red.length; i++) {
-            for (int j = 0; j < img.red[0].length; j++) {
-                img.red[i][j] = 0;
-                img.blue[i][j] = 0;
-                img.green[i][j] = 0;
+    private void updateColor(PixelLib.ColorComponents2d img) {
+        for (Cluster c:clusters) {
+            ArrayList <Point> points = c.getPoints();
+            for (Point p:points) {
+
+                img.red[p.getRow()][p.getCol()] = red;
+                img.blue[p.getRow()][p.getCol()] = blue;
+                img.green[p.getRow()][p.getCol()] = green;
             }
         }
-
-        for (Cluster c : clusters) {
-            ArrayList<Point> points = c.getPoints();
-            for (Point p : points) {
-
-                img.red[p.getRow()][p.getCol()] = c.getRed();
-                img.blue[p.getRow()][p.getCol()] = c.getBlue();
-                img.green[p.getRow()][p.getCol()] = c.getGreen();
-            }
-        }
-        return img;
-    }
-
-    private short[][] fillBlack(short[][] grid) {
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
-                grid[i][j] = 0;
-            }
-        }
-        return grid;
     }
 
     private boolean areCentersDifferent() {
-        for (Cluster c : clusters) {
+        for (Cluster c: clusters) {
             if (c.didCenterChange()) return false;
         }
         return true;
     }
 
 
-    private ArrayList<Point> getAllPoints(short[][] out2) {
+    private ArrayList<Point>  getAllPoints(short[][] out2) {
         ArrayList<Point> output = new ArrayList<Point>();
         for (int i = 0; i < out2.length; i++) {
-            for (int j = 0; j < out2[i].length; j++) {
+            for (int j = 0; j < out2[0].length; j++) {
                 if (out2[i][j] == 255) {
                     output.add(new Point(i, j));
                 }
@@ -155,42 +141,21 @@ public class SkinFilter implements PixelFilter {
         return output;
     }
 
-    private void initializeClusters(int width, int height) {
-        for (Cluster c : clusters) {
-            c.clearPoints();
+    private void initializeClusters() {
+        clusters.clear();
+        for (int i = 0; i < numClusters; i++) {
+            Point randomCenter = getRandomPoint();
+            ArrayList<Point> p = new ArrayList<Point>();
+            Cluster tmp = new Cluster(randomCenter, p);
+            clusters.add(tmp);
         }
-        //int factor = 255/numClusters;
-        if (!initialized) {
-            for (int i = 0; i < numClusters; i++) {
-                Point randomCenter = getRandomPoint(height, width);
-                ArrayList<Point> p = new ArrayList<Point>();
-                Cluster tmp = new Cluster(randomCenter, p);
-
-                    tmp.setColor(255, 255, 255);
-
-                clusters.add(tmp);
-                initialized = true;
-            }
-        }
-//        else {
-//            for (int i = 0; i < numClusters; i++) {
-//                Point randomCenter = getRandomPoint(height, width);
-//                ArrayList<Point> p = new ArrayList<Point>();
-//                Cluster tmp = new Cluster(randomCenter, p);
-//                if (i == 0) {
-//                    tmp.setColor(0, 0, 0);
-//                } else {
-//                    tmp.setColor(255, 255, 255);
-//                }
-//                clusters.add(tmp);
-//            }
-//        }
     }
 
-    private Point getRandomPoint(int rows, int cols) {
-        int r = (int) (Math.random() * rows);
-        int c = (int) (Math.random() * cols);
-        return new Point(r, c);
+    private Point getRandomPoint() {
+        int r = (int) (Math.random() * out.length);
+        int c = (int) (Math.random() * out[0].length);
+        Point randPoint = new Point(r, c);
+        return randPoint;
     }
 
     private void performSecondThreshold(short[][] out2) {

@@ -5,10 +5,9 @@ public class Monochrome implements PixelFilter {
         short[] bwpixels = PixelLib.convertToShortGreyscale(pixels);
 
         for (int i = 0; i < bwpixels.length; i++) {
-            if (bwpixels[i] < (short)(127)) {
+            if (bwpixels[i] < (short) (127)) {
                 bwpixels[i] = 0;
-            }
-            else {
+            } else {
                 bwpixels[i] = 255;
             }
         }
