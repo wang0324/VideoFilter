@@ -9,3 +9,16 @@ Uses your computer's webcam and the user selects which filter to use on the vide
 5. Then run FilterView. The right side of the Applet will be black. You can choose a video vilter by pressing the 'f' key
 and type the class name of the filter you want to use.
 6. Enjoy and have fun!
+
+# List of Filters
+- Color Threshold Filter
+- Convolution Filter
+- Darken Filter
+- Drawable Filter
+- EdgeDetection Filter
+- Monochrome Filter
+- Polychrome Filter
+- Pixel Filter
+- Pixelate Filter
+- Gaussian Blur Filter
+
